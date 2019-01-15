@@ -2,8 +2,9 @@
 ## LUA plugin for Wireshark
 
 ## How to install the plugin
-* Copy the contents of [./plugin](/plugin) ([`ro_dissector.lua`](/plugin/ro_dissector.lua) and [`ro_packet_table.lua`](/plugin/ro_packet_table.lua)) and [./table/table_serialize.lua](/table/table_serialize.lua) to your Wireshark main directory
+* Copy the contents of [./plugin](/plugin) ([`ro_dissector.lua`](/plugin/ro_dissector.lua), [`ro_tap.lua`](/plugin/ro_tap.lua) and [`ro_packet_table.lua`](/plugin/ro_packet_table.lua)) and [./table/table_serialize.lua](/table/table_serialize.lua) to your Wireshark main directory
 * Append `dofile('/ro_dissector.lua')` to the end of `init.lua`
+After the plugin has ran a new file `ro_extracted.pcap` will be generated with only the packets of our protocol
 
 ## Updating Packet Table
 ```
@@ -19,4 +20,3 @@ struct PACKET_<packet name with no spaces> {
   /* this+<0x%04 pos> */ <C type> <variable name>
 }
 ```
-

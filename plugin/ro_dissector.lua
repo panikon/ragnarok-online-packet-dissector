@@ -5,6 +5,7 @@ dofile("table_serialize.lua")
 packet_table = table.load("ro_packet_table.lua")
 
 ro_protocol = Proto("RO", "Ragnarok Online")
+dofile("ro_tap.lua")
 
 packet_header = ProtoField.uint16("ro.header", "Header", base.HEX)
 packet_name = ProtoField.string("ro.packet_name", "Packet Name", base.ASCII)
@@ -12,9 +13,11 @@ server_type = ProtoField.string("ro.server_type", "Server Type", base.ASCII)
 ro_protocol.fields = { packet_header, packet_name, server_type }
 
 -- Ports used when dissecting packets
-LOGIN_PORT = 6900
-WORLD_PORT = 7000
-ZONE_PORT  = 4501
+port_list = {
+	6900, 6901, -- Login
+	7000, 7001, -- World
+	4501, 4502  -- Zone
+}
 
 -- Displays buffer in given subtree using content as dissect information
 -- @param subtree Current subtree
@@ -103,7 +106,7 @@ function display_content(subtree, buffer, pos, packet)
 			j = j + 1
 		end
 	end
-end	
+end
 
 -- Main dissector
 -- @param Buffer      packet buffer (Tvb object)
@@ -164,10 +167,8 @@ function ro_protocol.dissector(buffer, pinfo, main_tree)
 	display_content(subtree, buffer(), pos, packet)
 end
 
+-- Register the protocol to the expected ports
 local tcp_port = DissectorTable.get("tcp.port")
-tcp_port:add(LOGIN_PORT, ro_protocol)
-tcp_port:add(LOGIN_PORT+1, ro_protocol)
-tcp_port:add(WORLD_PORT, ro_protocol)
-tcp_port:add(WORLD_PORT+1, ro_protocol)
-tcp_port:add(ZONE_PORT,  ro_protocol)
-tcp_port:add(ZONE_PORT+1,  ro_protocol)
+for i, v in ipairs(port_list) do
+	tcp_port:add(v, ro_protocol)
+end
